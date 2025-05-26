@@ -30,9 +30,10 @@ kotlin {
         iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
-            baseName = "bas_pay"
+            baseName = "BasPay"
             xcf.add(this)
-            isStatic = true
+            isStatic = false
+//            isStatic = true
         }
     }
 
@@ -80,3 +81,11 @@ android {
 // ./gradlew clean
 // ./gradlew --stop
 // ./gradlew build release
+// ./gradlew :shared:assembleXCFramework
+// ./gradlew :bas_pay:assembleXCFramework
+// ./gradlew :bas_pay:assembleReleaseXCFramework
+// ./gradlew :shared:assembleSharedModuleXCFramework
+//# Or for a specific build type:
+//# ./gradlew :shared:assembleSharedModuleDebugXCFramework
+//# ./gradlew :shared:assembleSharedModuleReleaseXCFramework
+// ./gradlew clean build
