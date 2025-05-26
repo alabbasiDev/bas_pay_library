@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ShouldPauseCallback
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,12 +22,19 @@ import com.superstore.bas_pay.injections.BankyLitePayInjection
 import com.superstore.bas_pay.injections.CloseBasSdkInjection
 import com.superstore.bas_pay.injections.InitBasSdkInjection
 import com.superstore.bas_pay.models.BankyLitePayModel
+import com.superstore.bas_pay.models.BankyLitePayResponseModel
 import com.superstore.bas_pay.models.InitBasSdkModel
 import com.superstore.bas_pay.models.ResultStatusModel
 
 
 @Composable
-fun basSdk(trxToken: String, userIdentifier: String?, fullName: String?, language: String?, platform: String?){
+fun basSdk(
+    trxToken: String,
+    userIdentifier: String?,
+    fullName: String?,
+    language: String?,
+    platform: String?
+) {
 
     val testURL: String = "https://bas-sdk-web-dev.web.app"
 
@@ -36,15 +44,24 @@ fun basSdk(trxToken: String, userIdentifier: String?, fullName: String?, languag
 
     lateinit var jsBridge: WebViewJsBridge
 
-    val initBasSdkModel:InitBasSdkModel = InitBasSdkModel(
+    val initBasSdkModel: InitBasSdkModel = InitBasSdkModel(
         trxToken,
         userIdentifier,
         fullName,
         language,
         platform ?: "Native",
-        osType())
+        osType()
+    )
 
     var currentBankyLitePayData by remember { mutableStateOf<BankyLitePayModel?>(null) }
+
+    var currentResultStatus by remember { mutableStateOf<BankyLitePayResponseModel?>(null) }
+
+    var bankyLiteCallback by remember { mutableStateOf<((String) -> Unit)?>(null) }
+
+    var closeBasSdkData by remember { mutableStateOf<ResultStatusModel?>(null) }
+
+    var closeBasSdkCallback by remember { mutableStateOf<((String) -> Unit)?>(null) }
 
     webViewState = rememberWebViewState(testURL)
 
@@ -52,15 +69,30 @@ fun basSdk(trxToken: String, userIdentifier: String?, fullName: String?, languag
 
     jsBridge = rememberWebViewJsBridge(webViewNavigator)
 
+    fun callbackForBankyLitePay(currentResultStatus : String) : Unit {
+        bankyLiteCallback?.invoke(currentResultStatus)
+    }
+
+    fun callbackForCloseBasSdk(closeBasSdkData : String) : Unit {
+        closeBasSdkCallback?.invoke(closeBasSdkData)
+    }
 
     LaunchedEffect(Unit) {
         jsBridge.register(InitBasSdkInjection(initBasSdkModel))
-        jsBridge.register(CloseBasSdkInjection())
-        jsBridge.register(BankyLitePayInjection({
-            data ->
+        jsBridge.register(CloseBasSdkInjection(onJsCallbackReceived = {data ->  closeBasSdkData = data},
+            callbackHandler = {callbackResult -> closeBasSdkCallback = callbackResult}))
+        jsBridge.register(BankyLitePayInjection(onJsCallbackReceived = { data ->
             currentBankyLitePayData = data
-//            bankyLitePay(data.txnToken, data.channel)
+        }, callbackHandler = { callbackResult ->
+            bankyLiteCallback = callbackResult
         }))
+    }
+
+    LaunchedEffect(currentResultStatus) {
+        if(currentResultStatus != null){
+            callbackForBankyLitePay(currentResultStatus!!.toJson())
+            currentResultStatus = null
+        }
     }
 
     webViewState.webSettings.apply {
@@ -73,78 +105,36 @@ fun basSdk(trxToken: String, userIdentifier: String?, fullName: String?, languag
         }
     }
 
-    webViewState.apply {
-        if(webViewState.lastLoadedUrl?.contains("https://www.bas.com/") == true){
-            closeBasSdk(ResultStatusModel.fromQueryStringToJsonString(webViewState.lastLoadedUrl!!))
-        }
-    }
 
     WebView(
         webViewState,
         webViewJsBridge = jsBridge,
         navigator = webViewNavigator,
         modifier = Modifier.fillMaxSize()
-              .systemBarsPadding()
+            .systemBarsPadding()
             .imePadding()
     )
 
-    if(currentBankyLitePayData!= null){
 
-        bankyLitePay(currentBankyLitePayData!!.txnToken, currentBankyLitePayData!!.channel!!)
+
+    currentBankyLitePayData.apply {
+        if (this != null) {
+            BankyLitePay(this.txnToken, this.channel!!){
+                result ->
+                currentResultStatus = result
+            }
+            currentBankyLitePayData = null
+        }
     }
+
+    closeBasSdkData.apply {
+        if (this != null) {
+            val closeBasData = closeBasSdkData!!.toJsonString()
+            closeBasSdk(closeBasData)
+            callbackForCloseBasSdk(closeBasData)
+            closeBasSdkData = null
+        }
+    }
+
+
 }
-
-//@Composable
-//fun bankyLitePayFunction(txnToken: String, channel: String): String {
-//    return bankyLitePay(txnToken, channel)
-//}
-
-//class BasMain {
-//
-//    private val testURL: String = "https://bas-sdk-web-dev.web.app"
-//
-//    private lateinit var webViewState: WebViewState
-//
-//    private lateinit var webViewNavigator: WebViewNavigator
-//
-//    private lateinit var jsBridge: WebViewJsBridge
-//
-//
-////    init {
-////
-////    }
-//
-//    @Composable
-//    fun basSdk(trxToken: String, userIdentifier: String?, fullName: String?, language: String?){
-//
-//        val initBasSdkModel:InitBasSdkModel = InitBasSdkModel(trxToken, userIdentifier, fullName, language)
-//
-//        webViewState = rememberWebViewState(testURL)
-//
-//        webViewNavigator = rememberWebViewNavigator()
-//
-//        jsBridge = rememberWebViewJsBridge(webViewNavigator)
-//
-//
-//        LaunchedEffect(Unit) {
-//            jsBridge.register(InitBasSdkInjection(initBasSdkModel))
-//        }
-//
-//        webViewState.webSettings.apply {
-//            isJavaScriptEnabled = true
-//            androidWebSettings.apply {
-//                useWideViewPort = true
-//                domStorageEnabled = true
-//            }
-//        }
-//
-//        WebView(
-//            webViewState,
-//            webViewJsBridge = jsBridge,
-//            navigator = webViewNavigator,
-//            modifier = Modifier.fillMaxSize()
-//            )
-//
-//    }
-//
-//}

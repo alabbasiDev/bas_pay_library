@@ -5,6 +5,6 @@ import com.superstore.bas_pay.models.BankyLitePayResponseModel
 
 
 @Composable
-actual fun bankyLitePay(txnToken: String, channel: String): BankyLitePayResponseModel {
+actual fun BankyLitePay(txnToken: String, channel: String, onPaymentComplete: (BankyLitePayResponseModel) -> Unit ) {
     TODO("Not yet implemented")
 }

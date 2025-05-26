@@ -4,4 +4,4 @@ import androidx.compose.runtime.Composable
 import com.superstore.bas_pay.models.BankyLitePayResponseModel
 
 @Composable
-expect fun bankyLitePay(txnToken: String, channel: String): BankyLitePayResponseModel
+expect fun BankyLitePay(txnToken: String, channel: String, onPaymentComplete: (BankyLitePayResponseModel) -> Unit )

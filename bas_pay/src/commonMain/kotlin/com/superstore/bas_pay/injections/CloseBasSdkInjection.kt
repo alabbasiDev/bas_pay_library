@@ -3,22 +3,23 @@ package com.superstore.bas_pay.injections
 import com.multiplatform.webview.jsbridge.IJsMessageHandler
 import com.multiplatform.webview.jsbridge.JsMessage
 import com.multiplatform.webview.web.WebViewNavigator
-import com.superstore.bas_pay.closeBasSdk
 import com.superstore.bas_pay.models.ResultStatusModel
 
 
-class CloseBasSdkInjection : IJsMessageHandler {
+class CloseBasSdkInjection(
+    private val onJsCallbackReceived: (ResultStatusModel) -> Unit,
+    private val callbackHandler: ((String) -> Unit) -> Unit,
+) : IJsMessageHandler {
     override fun handle(
         message: JsMessage,
         navigator: WebViewNavigator?,
         callback: (String) -> Unit
     ) {
+        val result = ResultStatusModel.fromJsonString(message.params)
 
-        val query = ResultStatusModel.fromJsonStringToQueryString(message.params)
+        onJsCallbackReceived(result)
 
-        navigator?.loadUrl("https://www.bas.com/${query}")
-
-        callback(query)
+        callbackHandler(callback)
     }
 
     override fun methodName(): String {

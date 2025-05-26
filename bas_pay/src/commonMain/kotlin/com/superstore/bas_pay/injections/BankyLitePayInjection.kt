@@ -1,5 +1,6 @@
 package com.superstore.bas_pay.injections
 
+import androidx.compose.ui.platform.UriHandler
 import com.multiplatform.webview.jsbridge.IJsMessageHandler
 import com.multiplatform.webview.jsbridge.JsMessage
 import com.multiplatform.webview.web.WebViewNavigator
@@ -8,7 +9,8 @@ import kotlinx.serialization.json.Json
 
 
 class BankyLitePayInjection(
-    private val onJsCallbackReceived: (BankyLitePayModel) -> Unit
+    private val onJsCallbackReceived: (BankyLitePayModel) -> Unit,
+    private val callbackHandler: ((String) -> Unit) -> Unit,
 ) : IJsMessageHandler {
     override fun handle(
         message: JsMessage,
@@ -16,15 +18,12 @@ class BankyLitePayInjection(
         callback: (String) -> Unit
     ) {
 
+
         val result = BankyLitePayModel.fromJsonString(message.params)
 
         onJsCallbackReceived(result)
 
-//        val query = ResultStatusModel.fromJsonStringToQueryString(message.params)
-
-//        navigator?.loadUrl("https://www.bas.com/${query}")
-
-//        callback(query)
+        callbackHandler(callback)
     }
 
     override fun methodName(): String {

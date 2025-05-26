@@ -1,0 +1,16 @@
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+
+    >
+    <!--
+        This manifest is for the shared KMM library's Android target.
+        It's usually minimal. The <queries> element related to app visibility
+        should go into the final androidApp's manifest.
+    -->
+    <!-- You might declare library-specific components here if needed -->
+
+    <queries>
+        <package android:name="com.ykb.bankylite" />
+        <package android:name="com.bankylite.commercial" />
+    </queries>
+</manifest>

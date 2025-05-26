@@ -2,6 +2,7 @@ package com.superstore.bas_pay.models
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
+import kotlinx.serialization.json.Json
 
 object BankyLitePayResponseModelFields {
     const val STATUS = "status"
@@ -17,17 +18,26 @@ class BankyLitePayResponseModel(
     val result: String?,
     val error: String?,
     val code: String?
-){
+) {
 
-    companion object {
-//        fun fromJson(json: String): BankyLitePayResponseModel {
-//            val jsonObject = JSONObject(json)
-//            return BankyLitePayResponseModel(
-//                status = jsonObject.getBoolean(BankyLitePayResponseModelFields.STATUS),
-//                result = jsonObject.optString(BankyLitePayResponseModelFields.RESULT),
-//                error = jsonObject.optString(BankyLitePayResponseModelFields.ERROR),
-//                code = jsonObject.optString(BankyLitePayResponseModelFields.CODE)
-//            )
-//        }
+    /// to Map
+    fun toMap(): Map<String, String?> {
+        val data = mutableMapOf<String, String?>()
+        data[BankyLitePayResponseModelFields.STATUS] = this.status.toString()
+        if(this.result != null)
+        data[BankyLitePayResponseModelFields.RESULT] = this.result
+        if(this.error != null)
+        data[BankyLitePayResponseModelFields.ERROR] = this.error
+        if(this.code != null)
+        data[BankyLitePayResponseModelFields.CODE] = this.code
+        return data
     }
+
+    /// to json map
+    fun toJson(): String {
+        val json = Json
+        return json.encodeToString(toMap())
+    }
+
+
 }

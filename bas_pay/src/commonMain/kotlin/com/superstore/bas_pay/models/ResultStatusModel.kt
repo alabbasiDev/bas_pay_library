@@ -1,9 +1,8 @@
 package com.superstore.bas_pay.models
 
-import kotlinx.serialization.Contextual
+
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromJsonElement
 
 
 object ResultStatusModelFields {
@@ -38,7 +37,8 @@ data class ResultStatusModel(
 
     fun toJsonString(): String {
         val json = Json
-        return json.encodeToString(toJsonMap())
+//        val map = toJsonMap()
+        return json.encodeToString(this)
     }
 
 
@@ -72,6 +72,11 @@ data class ResultStatusModel(
             val json = Json
             val map = json.decodeFromString<ResultStatusModel>(jsonString).toJsonMap()
             return map.map { "${it.key}=${it.value}" }.joinToString("&")
+        }
+
+        fun fromJsonString(jsonString: String): ResultStatusModel {
+            val json = Json
+            return json.decodeFromString<ResultStatusModel>(jsonString)
         }
 
 
