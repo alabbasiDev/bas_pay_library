@@ -33,7 +33,8 @@ fun basSdk(
     userIdentifier: String?,
     fullName: String?,
     language: String?,
-    platform: String?
+    platform: String?,
+    onReturnDataToIOS: ((String) -> Unit)?,
 ) {
 
     val testURL: String = "https://bas-sdk-web-dev.web.app"
@@ -103,6 +104,10 @@ fun basSdk(
             useWideViewPort = true
             domStorageEnabled = true
         }
+
+        iOSWebSettings.apply {
+
+        }
     }
 
 
@@ -128,11 +133,18 @@ fun basSdk(
     }
 
     closeBasSdkData.apply {
-        if (this != null) {
-            val closeBasData = closeBasSdkData!!.toJsonString()
-            closeBasSdk(closeBasData)
-            callbackForCloseBasSdk(closeBasData)
-            closeBasSdkData = null
+        if(osType() == "Android"){
+            if (this != null) {
+                val closeBasData = closeBasSdkData!!.toJsonString()
+                closeBasSdk(closeBasData)
+                callbackForCloseBasSdk(closeBasData)
+                closeBasSdkData = null
+            }
+        }else if (osType() == "IOS"){
+            if (this != null) {
+                onReturnDataToIOS?.invoke(closeBasSdkData!!.toJsonString())
+                closeBasSdkData = null
+            }
         }
     }
 
