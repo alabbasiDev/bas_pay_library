@@ -25,16 +25,23 @@ kotlin {
     
     val xcf = XCFramework()
     listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
+        /// For Intel Macs
+//        iosX64(),
+        /// iOS Device Target
+        iosArm64("iosDeviceArm64"),
+        /// iOS Simulator Targets ... And For Apple Silicon Macs (M1, M2, M3...)
+//        iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
             baseName = "bas_pay"
-//            baseName = "BasPay"
             xcf.add(this)
-//            isStatic = false
             isStatic = true
+            transitiveExport = false
+            freeCompilerArgs += listOf(
+               "-opt",
+               "-Xllvm-lto-level=thin",
+               "-Xlinker",
+            )
         }
     }
 
@@ -86,7 +93,9 @@ android {
 // ./gradlew :shared:assembleXCFramework
 
 /// build by this for ios
+//
 // ./gradlew :bas_pay:assembleXCFramework
+// ./gradlew :bas_pay:linkReleaseFrameworkIosArm64
 
 // ./gradlew :bas_pay:assembleReleaseXCFramework
 // ./gradlew :shared:assembleSharedModuleXCFramework
@@ -94,3 +103,4 @@ android {
 //# ./gradlew :shared:assembleSharedModuleDebugXCFramework
 //# ./gradlew :shared:assembleSharedModuleReleaseXCFramework
 // ./gradlew clean build
+
