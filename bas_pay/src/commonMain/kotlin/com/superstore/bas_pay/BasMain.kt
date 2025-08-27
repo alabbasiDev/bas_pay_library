@@ -9,6 +9,7 @@ import androidx.compose.runtime.ShouldPauseCallback
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.multiplatform.webview.jsbridge.WebViewJsBridge
@@ -34,10 +35,22 @@ fun basSdk(
     fullName: String?,
     language: String?,
     platform: String?,
+    product: String?,
     onReturnDataToIOS: ((String) -> Unit)?,
+    environment: String? = "dev",
 ) {
+    fun baseUrl(): String {
+        if (environment == "prod") {
+            return "https://bas-sdk-web.web.app"
+        } else if (environment == "dev") {
+            return "https://bas-sdk-web-dev.web.app"
+        } else {
+            return "https://bas-sdk-web.web.app"
+        }
+    }
 
-    val testURL: String = "https://bas-sdk-web-dev.web.app"
+
+//    val testURL: String = "https://bas-sdk-web-dev.web.app"
 
     lateinit var webViewState: WebViewState
 
@@ -51,20 +64,21 @@ fun basSdk(
         fullName,
         language,
         platform ?: "Native",
-        osType()
+        osType(),
+        product
     )
 
-    var currentBankyLitePayData by remember { mutableStateOf<BankyLitePayModel?>(null) }
+    var currentBankyLitePayData by rememberSaveable() { mutableStateOf<BankyLitePayModel?>(null) }
 
-    var currentResultStatus by remember { mutableStateOf<BankyLitePayResponseModel?>(null) }
+    var currentResultStatus by rememberSaveable() { mutableStateOf<BankyLitePayResponseModel?>(null) }
 
-    var bankyLiteCallback by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var bankyLiteCallback by rememberSaveable() { mutableStateOf<((String) -> Unit)?>(null) }
 
-    var closeBasSdkData by remember { mutableStateOf<ResultStatusModel?>(null) }
+    var closeBasSdkData by rememberSaveable() { mutableStateOf<ResultStatusModel?>(null) }
 
-    var closeBasSdkCallback by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var closeBasSdkCallback by rememberSaveable() { mutableStateOf<((String) -> Unit)?>(null) }
 
-    webViewState = rememberWebViewState(testURL)
+    webViewState = rememberWebViewState(baseUrl())
 
     webViewNavigator = rememberWebViewNavigator()
 
@@ -75,13 +89,17 @@ fun basSdk(
     }
 
     fun callbackForCloseBasSdk(closeBasSdkData : String) : Unit {
+//        myLogger("callbackForCloseBasSdk closeBasSdkData: $closeBasSdkData")
         closeBasSdkCallback?.invoke(closeBasSdkData)
     }
 
     LaunchedEffect(Unit) {
         jsBridge.register(InitBasSdkInjection(initBasSdkModel))
         jsBridge.register(CloseBasSdkInjection(onJsCallbackReceived = {data ->  closeBasSdkData = data},
-            callbackHandler = {callbackResult -> closeBasSdkCallback = callbackResult}))
+            callbackHandler = {callbackResult -> closeBasSdkCallback = callbackResult
+//            myLogger("closeBasSdkCallback result: $closeBasSdkCallback")
+//            myLogger("callbackResult result: $callbackResult")
+            }))
         jsBridge.register(BankyLitePayInjection(onJsCallbackReceived = { data ->
             currentBankyLitePayData = data
         }, callbackHandler = { callbackResult ->

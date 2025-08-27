@@ -10,6 +10,7 @@ object InitBasSdkModelFields {
     const val language : String = "language"
     const val platform : String = "platform"
     const val osType : String = "osType"
+    const val product : String = "product"
     // Add other fields if needed
 }
 
@@ -22,6 +23,7 @@ data class InitBasSdkModel(
     val language: String? = null,
     val platform: String,
     val osType: String,
+    val product: String? = null,
 ) {
 
 
@@ -37,6 +39,8 @@ data class InitBasSdkModel(
 
         data[InitBasSdkModelFields.platform] = this.platform
         data[InitBasSdkModelFields.osType] = this.osType
+        if(this.product != null)
+        data[InitBasSdkModelFields.product] = this.product
         return data
     }
 
