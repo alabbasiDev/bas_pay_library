@@ -13,16 +13,16 @@ object BankyLitePayResponseModelFields {
 
 
 @Serializable
-class BankyLitePayResponseModel(
+data class BankyLitePayResponseModel(
     val status: Boolean,
-    val result: String?,
-    val error: String?,
-    val code: String?
+    val result: String? = null,
+    val error: String? = null,
+    val code: String? = null
 ) {
 
     /// to Map
     fun toMap(): Map<String, String?> {
-        val data = mutableMapOf<String, String?>()
+        val data = mutableMapOf<String, String>()
         data[BankyLitePayResponseModelFields.STATUS] = this.status.toString()
         if(this.result != null)
         data[BankyLitePayResponseModelFields.RESULT] = this.result

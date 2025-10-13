@@ -69,7 +69,7 @@ kotlin {
 
 android {
     namespace = "com.superstore.bas_pay"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         minSdk = 24
 //        setProperty("archivesBaseName", "osama")

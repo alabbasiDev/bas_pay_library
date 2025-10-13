@@ -7,11 +7,11 @@ import platform.UIKit.UIViewController
 
 
 
-fun BasMainIosController(trxToken: String, userIdentifier: String?, fullName: String?, language: String?, product: String?, onReturnDataToIOS: (String) -> Unit): UIViewController {
+fun BasMainIosController(trxToken: String, userIdentifier: String?, fullName: String?, language: String?, product: String?, onReturnDataToIOS: (String) -> Unit, environment: String?): UIViewController {
     return ComposeUIViewController { // Wrap Composable in a UIViewController
         basSdk(trxToken, userIdentifier, fullName, language, osType(), onReturnDataToIOS = {
             data -> onReturnDataToIOS(data)
-        }, product = product)
+        }, product = product, environment = environment)
 //        BasMainIos(trxToken, userIdentifier, fullName, language)
     }
 }

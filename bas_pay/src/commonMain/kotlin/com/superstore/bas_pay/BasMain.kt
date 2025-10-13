@@ -9,7 +9,6 @@ import androidx.compose.runtime.ShouldPauseCallback
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.multiplatform.webview.jsbridge.WebViewJsBridge
@@ -22,6 +21,7 @@ import com.multiplatform.webview.web.rememberWebViewState
 import com.superstore.bas_pay.injections.BankyLitePayInjection
 import com.superstore.bas_pay.injections.CloseBasSdkInjection
 import com.superstore.bas_pay.injections.InitBasSdkInjection
+import com.superstore.bas_pay.injections.WebLoggerInjection
 import com.superstore.bas_pay.models.BankyLitePayModel
 import com.superstore.bas_pay.models.BankyLitePayResponseModel
 import com.superstore.bas_pay.models.InitBasSdkModel
@@ -37,15 +37,13 @@ fun basSdk(
     platform: String?,
     product: String?,
     onReturnDataToIOS: ((String) -> Unit)?,
-    environment: String? = "dev",
+    environment: String? = "prod",
 ) {
     fun baseUrl(): String {
-        if (environment == "prod") {
-            return "https://bas-sdk-web.web.app"
-        } else if (environment == "dev") {
-            return "https://bas-sdk-web-dev.web.app"
-        } else {
-            return "https://bas-sdk-web.web.app"
+        return when (environment) {
+            "prod" -> "https://bas-pay.web.app"
+            "dev" -> "https://bas-pay--dev-pb44x52j.web.app"
+            else -> "https://bas-pay.web.app"
         }
     }
 
@@ -68,15 +66,16 @@ fun basSdk(
         product
     )
 
-    var currentBankyLitePayData by rememberSaveable() { mutableStateOf<BankyLitePayModel?>(null) }
 
-    var currentResultStatus by rememberSaveable() { mutableStateOf<BankyLitePayResponseModel?>(null) }
+    var currentBankyLitePayData by remember { mutableStateOf<BankyLitePayModel?>(null) }
 
-    var bankyLiteCallback by rememberSaveable() { mutableStateOf<((String) -> Unit)?>(null) }
+    var currentResultStatus by remember { mutableStateOf<BankyLitePayResponseModel?>(null) }
 
-    var closeBasSdkData by rememberSaveable() { mutableStateOf<ResultStatusModel?>(null) }
+    var bankyLiteCallback by remember { mutableStateOf<((String) -> Unit)?>(null) }
 
-    var closeBasSdkCallback by rememberSaveable() { mutableStateOf<((String) -> Unit)?>(null) }
+    var closeBasSdkData by remember { mutableStateOf<ResultStatusModel?>(null) }
+
+    var closeBasSdkCallback by remember { mutableStateOf<((String) -> Unit)?>(null) }
 
     webViewState = rememberWebViewState(baseUrl())
 
@@ -94,17 +93,26 @@ fun basSdk(
     }
 
     LaunchedEffect(Unit) {
-        jsBridge.register(InitBasSdkInjection(initBasSdkModel))
-        jsBridge.register(CloseBasSdkInjection(onJsCallbackReceived = {data ->  closeBasSdkData = data},
-            callbackHandler = {callbackResult -> closeBasSdkCallback = callbackResult
+//        withContext(Dispatchers.Main){
+//            jsBridge.apply {
+//
+//            }
+            jsBridge.register(InitBasSdkInjection(initBasSdkModel))
+            jsBridge.register(CloseBasSdkInjection(onJsCallbackReceived = {data ->  closeBasSdkData = data},
+                callbackHandler = {callbackResult -> closeBasSdkCallback = callbackResult
 //            myLogger("closeBasSdkCallback result: $closeBasSdkCallback")
 //            myLogger("callbackResult result: $callbackResult")
+                }))
+            jsBridge.register(BankyLitePayInjection(onJsCallbackReceived = { data ->
+                currentBankyLitePayData = data
+                myLogger("currentBankyLitePayData: $currentBankyLitePayData")
+                myLogger("currentBankyLitePayData Data: $data")
+            }, callbackHandler = { callbackResult ->
+                bankyLiteCallback = callbackResult
             }))
-        jsBridge.register(BankyLitePayInjection(onJsCallbackReceived = { data ->
-            currentBankyLitePayData = data
-        }, callbackHandler = { callbackResult ->
-            bankyLiteCallback = callbackResult
-        }))
+
+            jsBridge.register(WebLoggerInjection())
+//        }
     }
 
     LaunchedEffect(currentResultStatus) {
