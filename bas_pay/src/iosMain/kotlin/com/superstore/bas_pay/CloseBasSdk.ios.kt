@@ -4,5 +4,6 @@ import androidx.compose.runtime.Composable
 
 @Composable
 actual fun closeBasSdk(result: String): Boolean {
+    BankyLiteNotificationManager.stopObserving()
     return true
 }

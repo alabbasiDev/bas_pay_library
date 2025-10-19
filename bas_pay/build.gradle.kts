@@ -29,6 +29,7 @@ kotlin {
 //        iosX64(),
         /// iOS Device Target
         iosArm64("iosDeviceArm64"),
+//        iosArm64(),
         /// iOS Simulator Targets ... And For Apple Silicon Macs (M1, M2, M3...)
 //        iosSimulatorArm64()
     ).forEach {
@@ -36,18 +37,20 @@ kotlin {
             baseName = "bas_pay"
             xcf.add(this)
             isStatic = true
-            transitiveExport = false
-            freeCompilerArgs += listOf(
-               "-opt",
-               "-Xllvm-lto-level=thin",
-               "-Xlinker",
-            )
+            binaryOption("bundleId", "com.superstore.${baseName}")
+//            transitiveExport = false
+//            freeCompilerArgs += listOf(
+//               "-opt",
+//               "-Xllvm-lto-level=thin",
+//               "-Xlinker",
+//            )
         }
     }
 
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.webview.multiplatform)
+            implementation(libs.coroutines.core)
             implementation(compose.runtime)
             implementation(compose.foundation)
 //            implementation(compose.material3)
@@ -95,6 +98,8 @@ android {
 /// build by this for ios
 //
 // ./gradlew :bas_pay:assembleXCFramework
+// zip -r bas_pay.xcframework.zip bas_pay.xcframework
+// shasum -a 256 bas_pay.xcframework.zip
 // ./gradlew :bas_pay:linkReleaseFrameworkIosArm64
 
 // ./gradlew :bas_pay:assembleReleaseXCFramework
@@ -104,3 +109,4 @@ android {
 //# ./gradlew :shared:assembleSharedModuleReleaseXCFramework
 // ./gradlew clean build
 
+//  ./gradlew :bas_pay:embedAndSignAppleFrameworkForXcode

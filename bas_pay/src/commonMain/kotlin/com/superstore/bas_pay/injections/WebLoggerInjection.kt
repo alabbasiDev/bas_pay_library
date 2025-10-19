@@ -12,7 +12,7 @@ class WebLoggerInjection() : IJsMessageHandler {
         callback: (String) -> Unit
     ) {
 
-        myLogger("Logger From JS : ${message.params}")
+//        myLogger("Logger From JS : ${message.params}")
 
         callback("Logger From JS : ${message.params}")
     }

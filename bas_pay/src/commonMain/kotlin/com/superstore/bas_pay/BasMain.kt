@@ -105,8 +105,8 @@ fun basSdk(
                 }))
             jsBridge.register(BankyLitePayInjection(onJsCallbackReceived = { data ->
                 currentBankyLitePayData = data
-                myLogger("currentBankyLitePayData: $currentBankyLitePayData")
-                myLogger("currentBankyLitePayData Data: $data")
+//                myLogger("currentBankyLitePayData: $currentBankyLitePayData")
+//                myLogger("currentBankyLitePayData Data: $data")
             }, callbackHandler = { callbackResult ->
                 bankyLiteCallback = callbackResult
             }))
@@ -117,6 +117,8 @@ fun basSdk(
 
     LaunchedEffect(currentResultStatus) {
         if(currentResultStatus != null){
+//            myLogger("currentResultStatus: $currentResultStatus")
+//            myLogger("currentResultStatus json: ${currentResultStatus!!.toJson()}")
             callbackForBankyLitePay(currentResultStatus!!.toJson())
             currentResultStatus = null
         }
@@ -150,13 +152,41 @@ fun basSdk(
 
     currentBankyLitePayData.apply {
         if (this != null) {
-            BankyLitePay(this.txnToken, this.channel!!){
+//            myLogger("currentBankyLitePayData: Start")
+//            val channel = "com.ykb.bankylite"
+            val channel = if(initBasSdkModel.osType == "Android"){
+                "com.bankylite.commercial"
+            } else if(initBasSdkModel.osType == "IOS") {
+                "com.ykb.bankylite"
+            }else{
+                "com.bankylite.commercial"
+            }
+//            myLogger("currentBankyLitePayData: channel: $channel")
+//            myLogger("currentBankyLitePayData: initBasSdkModel: ${initBasSdkModel.osType}")
+            BankyLitePay(this.txnToken, channel){
                 result ->
                 currentResultStatus = result
             }
+//            myLogger("currentBankyLitePayData: End calling")
             currentBankyLitePayData = null
         }
     }
+
+//    currentBankyLitePayData.apply {
+//        if (this != null) {
+//            BankyLitePay(this.txnToken, channel = if(this.channel.isNullOrBlank()){
+//                if(osType() == "Android"){
+//                    "com.bankylite.commercial"
+//                } else {
+//                    "com.ykb.bankylite"
+//                }
+//            } else {this.channel}){
+//                    result ->
+//                currentResultStatus = result
+//            }
+//            currentBankyLitePayData = null
+//        }
+//    }
 
     closeBasSdkData.apply {
         if(osType() == "Android"){
