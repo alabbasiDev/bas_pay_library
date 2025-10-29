@@ -42,7 +42,7 @@ fun basSdk(
     fun baseUrl(): String {
         return when (environment) {
             "prod" -> "https://bas-pay.web.app"
-            "dev" -> "https://bas-pay--dev-pb44x52j.web.app"
+            "dev" -> "https://bas-pay-dev.web.app"
             else -> "https://bas-pay.web.app"
         }
     }
