@@ -13,4 +13,10 @@
         <package android:name="com.ykb.bankylite" />
         <package android:name="com.bankylite.commercial" />
     </queries>
+
+    <application>
+        <activity android:name="com.superstore.bas_pay.BasActivity"
+            android:exported="false"
+            android:theme="@style/BasPayTransparentActivityTheme" />
+    </application>
 </manifest>
