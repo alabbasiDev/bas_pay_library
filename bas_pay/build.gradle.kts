@@ -12,6 +12,9 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
 }
 
+group = "com.superstore"
+version = providers.gradleProperty("VERSION_NAME").orElse("0.0.2").get()
+
 kotlin {
     androidTarget {
         compilations.all {
@@ -19,7 +22,7 @@ kotlin {
                 compilerOptions {
                     jvmTarget.set(JvmTarget.JVM_1_8)
                 }
-            }
+            ذ}
         }
     }
     
@@ -68,6 +71,47 @@ kotlin {
 //            implementation ("com.squareup.okhttp3:okhttp:4.8.0")
         }
 
+    }
+}
+
+mavenPublishing {
+    coordinates("com.superstore", "bas-pay")
+    pom {
+        name.set("BAS Pay Library")
+        description.set("BAS Payment SDK for Android")
+        url.set("https://github.com/BasPlatform/BasPaymentAndroidSdk")
+        licenses {
+            license {
+                name.set("MIT")
+            }
+        }
+        scm {
+            url.set("https://github.com/BasPlatform/BasPaymentAndroidSdk")
+            connection.set("scm:git:https://github.com/BasPlatform/BasPaymentAndroidSdk.git")
+            developerConnection.set("scm:git:ssh://git@github.com/BasPlatform/BasPaymentAndroidSdk.git")
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url =
+                uri(
+                    "https://maven.pkg.github.com/${
+                        providers.gradleProperty("gpr.github.repo").orElse("BasPlatform/BasPaymentAndroidSdk").get()
+                    }",
+                )
+            credentials {
+                username =
+                    providers.environmentVariable("GITHUB_ACTOR").orNull
+                        ?: providers.gradleProperty("gpr.user").orNull
+                password =
+                    providers.environmentVariable("GITHUB_TOKEN").orNull
+                        ?: providers.gradleProperty("gpr.key").orNull
+            }
+        }
     }
 }
 

@@ -14,6 +14,23 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            name = "GitHubPackages"
+            url =
+                uri(
+                    "https://maven.pkg.github.com/${
+                        providers.gradleProperty("gpr.github.repo").orElse("BasPlatform/BasPaymentAndroidSdk").get()
+                    }",
+                )
+            credentials {
+                username =
+                    providers.environmentVariable("GITHUB_ACTOR").orNull
+                        ?: providers.gradleProperty("gpr.user").orNull
+                password =
+                    providers.environmentVariable("GITHUB_TOKEN").orNull
+                        ?: providers.gradleProperty("gpr.key").orNull
+            }
+        }
     }
 }
 
