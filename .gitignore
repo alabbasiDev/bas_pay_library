@@ -8,3 +8,5 @@ captures
 .cxx
 local.properties
 xcuserdata
+# IDE / local JVM pin (breaks CI runners that only provision Temurin / no JetBrains JDK)
+gradle/gradle-daemon-jvm.properties
