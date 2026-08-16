@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "com.superstore"
-version = providers.gradleProperty("VERSION_NAME").orElse("0.0.2").get()
+version = providers.gradleProperty("VERSION_NAME").orElse("0.0.4").get()
 
 kotlin {
     androidTarget {

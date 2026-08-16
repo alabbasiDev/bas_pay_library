@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.ShouldPauseCallback
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +26,6 @@ import com.superstore.bas_pay.models.BankyLitePayResponseModel
 import com.superstore.bas_pay.models.InitBasSdkModel
 import com.superstore.bas_pay.models.ResultStatusModel
 
-
 @Composable
 fun basSdk(
     trxToken: String,
@@ -40,9 +38,10 @@ fun basSdk(
     environment: String? = "prod",
 ) {
     fun baseUrl(): String {
-        return when (environment) {
+        return when (environment?.lowercase()) {
             "prod" -> "https://bas-pay.web.app"
             "dev" -> "https://bas-pay-dev.web.app"
+            "sandbox" -> "https://bas-pay-sandbox.web.app"
             else -> "https://bas-pay.web.app"
         }
     }
