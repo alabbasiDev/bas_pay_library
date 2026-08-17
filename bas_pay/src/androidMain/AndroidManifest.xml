@@ -12,11 +12,28 @@
     <queries>
         <package android:name="com.ykb.bankylite" />
         <package android:name="com.bankylite.commercial" />
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="application/pdf" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="application/pdf" />
+        </intent>
     </queries>
 
     <application>
         <activity android:name="com.superstore.bas_pay.BasActivity"
             android:exported="false"
             android:theme="@style/BasPayTransparentActivityTheme" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.baspay.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/bas_pay_file_paths" />
+        </provider>
     </application>
 </manifest>

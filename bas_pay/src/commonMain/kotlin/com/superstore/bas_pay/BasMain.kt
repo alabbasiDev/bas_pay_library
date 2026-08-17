@@ -19,10 +19,13 @@ import com.multiplatform.webview.web.rememberWebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewState
 import com.superstore.bas_pay.injections.BankyLitePayInjection
 import com.superstore.bas_pay.injections.CloseBasSdkInjection
+import com.superstore.bas_pay.injections.DownloadInvoiceInjection
 import com.superstore.bas_pay.injections.InitBasSdkInjection
 import com.superstore.bas_pay.injections.WebLoggerInjection
 import com.superstore.bas_pay.models.BankyLitePayModel
 import com.superstore.bas_pay.models.BankyLitePayResponseModel
+import com.superstore.bas_pay.models.DownloadInvoiceModel
+import com.superstore.bas_pay.models.DownloadInvoiceResult
 import com.superstore.bas_pay.models.InitBasSdkModel
 import com.superstore.bas_pay.models.ResultStatusModel
 
@@ -76,6 +79,10 @@ fun basSdk(
 
     var closeBasSdkCallback by remember { mutableStateOf<((String) -> Unit)?>(null) }
 
+    var currentDownloadInvoiceData by remember { mutableStateOf<DownloadInvoiceModel?>(null) }
+
+    var downloadInvoiceCallback by remember { mutableStateOf<((String) -> Unit)?>(null) }
+
     webViewState = rememberWebViewState(baseUrl())
 
     webViewNavigator = rememberWebViewNavigator()
@@ -111,6 +118,10 @@ fun basSdk(
             }))
 
             jsBridge.register(WebLoggerInjection())
+            jsBridge.register(DownloadInvoiceInjection(
+                onJsCallbackReceived = { data -> currentDownloadInvoiceData = data },
+                callbackHandler = { callbackResult -> downloadInvoiceCallback = callbackResult },
+            ))
 //        }
     }
 
@@ -186,6 +197,16 @@ fun basSdk(
 //            currentBankyLitePayData = null
 //        }
 //    }
+
+    currentDownloadInvoiceData.apply {
+        if (this != null) {
+            ShareInvoicePdf(request = this) { result: DownloadInvoiceResult ->
+                downloadInvoiceCallback?.invoke(result.toJsonString())
+                downloadInvoiceCallback = null
+                currentDownloadInvoiceData = null
+            }
+        }
+    }
 
     closeBasSdkData.apply {
         if(osType() == "Android"){

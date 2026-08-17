@@ -66,6 +66,7 @@ kotlin {
         androidMain.dependencies {
             compileOnly(files("src/androidMain/libs/BankySDKManager-release.aar"))
             implementation("androidx.appcompat:appcompat:1.7.0")
+            implementation("androidx.core:core-ktx:1.15.0")
 //            implementation("com.android.support:appcompat-v7:28.0.0")
 //            implementation ("androidx.localbroadcastmanager:localbroadcastmanager:1.0.0")
 //            implementation ("com.squareup.okhttp3:okhttp:4.8.0")
