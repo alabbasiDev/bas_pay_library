@@ -40,7 +40,8 @@ kotlin {
             baseName = "bas_pay"
             xcf.add(this)
             isStatic = true
-            binaryOption("bundleId", "com.superstore.${baseName}")
+            // CFBundleIdentifier cannot contain underscores (SPM embed validation).
+            binaryOption("bundleId", "com.superstore.baspay")
 //            transitiveExport = false
 //            freeCompilerArgs += listOf(
 //               "-opt",
@@ -121,7 +122,7 @@ android {
     compileSdk = 36
     defaultConfig {
         minSdk = 24
-//        setProperty("archivesBaseName", "osama")
+//        setProperty("archivesBaseName", "alabbasidev")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
