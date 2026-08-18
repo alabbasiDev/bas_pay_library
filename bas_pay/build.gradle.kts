@@ -34,7 +34,7 @@ kotlin {
         iosArm64("iosDeviceArm64"),
 //        iosArm64(),
         /// iOS Simulator Targets ... And For Apple Silicon Macs (M1, M2, M3...)
-//        iosSimulatorArm64()
+        iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
             baseName = "bas_pay"

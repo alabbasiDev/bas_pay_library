@@ -13,6 +13,7 @@ import platform.Foundation.NSData
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSURL
 import platform.Foundation.create
+import platform.Foundation.writeToURL
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
 import platform.UIKit.UIViewController
@@ -38,15 +39,15 @@ private fun shareInvoicePdf(request: DownloadInvoiceModel): DownloadInvoiceResul
             )
         val pdfBytes = request.decodePdfBytes()
         val filePath = NSTemporaryDirectory() + request.resolvedFileName()
+        val fileUrl = NSURL.fileURLWithPath(filePath)
         val pdfData = pdfBytes.toNSData()
-        val didWrite = pdfData.writeToFile(filePath, atomically = true)
+        val didWrite = pdfData.writeToURL(fileUrl, atomically = true)
         if (!didWrite) {
             return DownloadInvoiceResult(
                 status = false,
                 error = "Unable to write invoice file",
             )
         }
-        val fileUrl = NSURL.fileURLWithPath(filePath)
         val activityViewController = UIActivityViewController(
             activityItems = listOf(fileUrl),
             applicationActivities = null,
